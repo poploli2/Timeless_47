@@ -21,14 +21,14 @@ export const Timeline: React.FC<TimelineProps> = ({ memories }) => {
 
   return (
     <div className="px-4 py-6 pb-24 max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold text-love-800 mb-6 pl-2">Our Journey</h2>
-      
+      <h2 className="text-2xl font-bold text-love-800 mb-6 pl-2">我们的旅程</h2>
+
       <div className="relative border-l-2 border-love-200 ml-3 space-y-8">
         {sortedMemories.map((memory) => (
           <div key={memory.id} className="relative pl-8 group">
             {/* Dot on timeline */}
             <div className="absolute -left-[9px] top-4 w-4 h-4 rounded-full bg-love-400 border-2 border-white shadow-sm group-hover:scale-125 transition-transform duration-200"></div>
-            
+
             <div className="bg-white rounded-2xl p-5 shadow-sm border border-love-100 hover:shadow-md transition-shadow duration-300">
               {/* Header */}
               <div className="flex justify-between items-start mb-3">
@@ -69,7 +69,7 @@ export const Timeline: React.FC<TimelineProps> = ({ memories }) => {
 
         {sortedMemories.length === 0 && (
           <div className="pl-8 py-10 text-center text-gray-400 italic">
-            No memories yet. Click the + button to add your first one!
+            还没有回忆。点击 + 按钮添加你的第一个回忆！
           </div>
         )}
       </div>

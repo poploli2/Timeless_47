@@ -22,3 +22,19 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+.agent/
+
+# Environment Variables
+.env
+
+# Testing
+coverage
+
+# TypeScript
+*.tsbuildinfo
+
+# OS
+Thumbs.db
+ehthumbs.db
+Desktop.ini

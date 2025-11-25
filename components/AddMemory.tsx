@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Memory, Mood } from '../types';
 import { Wand2, Loader2, Save } from 'lucide-react';
-import { polishMemoryContent } from '../services/geminiService';
+import { polishMemoryContent } from "../services/aiService";
 
 interface AddMemoryProps {
   onAdd: (memory: Memory) => void;
@@ -43,36 +43,36 @@ export const AddMemory: React.FC<AddMemoryProps> = ({ onAdd, onCancel }) => {
 
   return (
     <div className="px-4 py-6 pb-24 max-w-2xl mx-auto animate-fade-in">
-      <h2 className="text-2xl font-bold text-love-800 mb-6">New Memory</h2>
-      
+      <h2 className="text-2xl font-bold text-love-800 mb-6">新回忆</h2>
+
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-          <input 
-            type="text" 
-            value={title} 
+          <label className="block text-sm font-medium text-gray-700 mb-1">标题</label>
+          <input
+            type="text"
+            value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="w-full rounded-xl border-gray-200 shadow-sm focus:border-love-500 focus:ring-love-500 p-3"
-            placeholder="e.g., Our First Hike"
+            placeholder="例如：我们的第一次徒步"
             required
           />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-            <input 
-              type="date" 
-              value={date} 
+            <label className="block text-sm font-medium text-gray-700 mb-1">日期</label>
+            <input
+              type="date"
+              value={date}
               onChange={(e) => setDate(e.target.value)}
               className="w-full rounded-xl border-gray-200 shadow-sm focus:border-love-500 focus:ring-love-500 p-3"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Mood</label>
-            <select 
-              value={mood} 
+            <label className="block text-sm font-medium text-gray-700 mb-1">心情</label>
+            <select
+              value={mood}
               onChange={(e) => setMood(e.target.value as Mood)}
               className="w-full rounded-xl border-gray-200 shadow-sm focus:border-love-500 focus:ring-love-500 p-3 bg-white"
             >
@@ -82,19 +82,19 @@ export const AddMemory: React.FC<AddMemoryProps> = ({ onAdd, onCancel }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Location (Optional)</label>
-          <input 
-            type="text" 
-            value={location} 
+          <label className="block text-sm font-medium text-gray-700 mb-1">地点（可选）</label>
+          <input
+            type="text"
+            value={location}
             onChange={(e) => setLocation(e.target.value)}
             className="w-full rounded-xl border-gray-200 shadow-sm focus:border-love-500 focus:ring-love-500 p-3"
-            placeholder="e.g., Paris, France"
+            placeholder="例如：法国巴黎"
           />
         </div>
 
         <div>
           <div className="flex justify-between items-center mb-1">
-            <label className="block text-sm font-medium text-gray-700">What happened?</label>
+            <label className="block text-sm font-medium text-gray-700">发生了什么？</label>
             <button
               type="button"
               onClick={handlePolish}
@@ -102,18 +102,18 @@ export const AddMemory: React.FC<AddMemoryProps> = ({ onAdd, onCancel }) => {
               className="text-xs flex items-center space-x-1 text-love-600 hover:text-love-700 disabled:opacity-50 font-medium"
             >
               {isPolishing ? <Loader2 size={14} className="animate-spin" /> : <Wand2 size={14} />}
-              <span>AI Polish</span>
+              <span>AI 润色</span>
             </button>
           </div>
-          <textarea 
-            value={content} 
+          <textarea
+            value={content}
             onChange={(e) => setContent(e.target.value)}
             rows={6}
             className="w-full rounded-xl border-gray-200 shadow-sm focus:border-love-500 focus:ring-love-500 p-3"
-            placeholder="Write about your day..."
+            placeholder="记录下今天发生的事情..."
             required
           />
-          <p className="text-xs text-gray-400 mt-1">Use 'AI Polish' to make your note sound more romantic.</p>
+          <p className="text-xs text-gray-400 mt-1">使用 'AI 润色' 让你的笔记更浪漫。</p>
         </div>
 
         <div className="pt-4 flex space-x-3">
@@ -122,14 +122,14 @@ export const AddMemory: React.FC<AddMemoryProps> = ({ onAdd, onCancel }) => {
             onClick={onCancel}
             className="flex-1 py-3 px-4 border border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 transition-colors"
           >
-            Cancel
+            取消
           </button>
           <button
             type="submit"
             className="flex-1 py-3 px-4 bg-love-500 text-white rounded-xl font-medium hover:bg-love-600 shadow-md shadow-love-200 transition-colors flex justify-center items-center space-x-2"
           >
             <Save size={18} />
-            <span>Save Memory</span>
+            <span>保存回忆</span>
           </button>
         </div>
       </form>

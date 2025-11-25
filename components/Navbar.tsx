@@ -9,11 +9,10 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
   const navItems = [
-    { view: AppView.TIMELINE, icon: Home, label: 'Home' },
-    { view: AppView.ADD_MEMORY, icon: PlusCircle, label: 'Add' },
-    { view: AppView.AI_TOOLS, icon: Sparkles, label: 'Assistant' },
-    { view: AppView.GALLERY, icon: ImageIcon, label: 'Gallery' },
-    { view: AppView.PROFILE, icon: User, label: 'Profile' },
+    { view: AppView.TIMELINE, icon: Home, label: '首页' },
+    { view: AppView.ADD_MEMORY, icon: PlusCircle, label: '添加' },
+    { view: AppView.AI_TOOLS, icon: Sparkles, label: '助手' },
+    { view: AppView.PROFILE, icon: User, label: '我的' },
   ];
 
   return (
@@ -26,9 +25,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
             <button
               key={item.view}
               onClick={() => onNavigate(item.view)}
-              className={`flex flex-col items-center justify-center w-1/5 transition-all duration-300 ${
-                isActive ? 'text-love-600 scale-110' : 'text-gray-400 hover:text-love-400'
-              }`}
+              className={`flex flex-col items-center justify-center w-1/5 transition-all duration-300 ${isActive ? 'text-love-600 scale-110' : 'text-gray-400 hover:text-love-400'
+                }`}
             >
               <Icon size={isActive ? 26 : 24} strokeWidth={isActive ? 2.5 : 2} />
               <span className={`text-[10px] mt-1 font-medium ${isActive ? 'opacity-100' : 'opacity-0 hidden'}`}>

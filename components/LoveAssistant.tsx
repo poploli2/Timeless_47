@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Heart, CalendarHeart, Loader2, Copy, Check, Sparkles } from 'lucide-react';
-import { generateDateIdeas, generateLoveLetter } from '../services/geminiService';
+import { generateDateIdeas, generateLoveLetter } from "../services/aiService";
 import { DateIdeaParams, LoveLetterParams } from '../types';
 
 export const LoveAssistant: React.FC = () => {
@@ -39,28 +39,26 @@ export const LoveAssistant: React.FC = () => {
 
   return (
     <div className="px-4 py-6 pb-24 max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold text-love-800 mb-6">Love Assistant</h2>
+      <h2 className="text-2xl font-bold text-love-800 mb-6">恋爱助手</h2>
 
       <div className="bg-white rounded-2xl shadow-sm border border-love-100 overflow-hidden">
         {/* Tabs */}
         <div className="flex border-b border-gray-100">
           <button
             onClick={() => { setActiveTab('letter'); setResult(''); }}
-            className={`flex-1 py-4 text-sm font-medium flex justify-center items-center space-x-2 transition-colors ${
-              activeTab === 'letter' ? 'bg-love-50 text-love-600 border-b-2 border-love-500' : 'text-gray-500 hover:bg-gray-50'
-            }`}
+            className={`flex-1 py-4 text-sm font-medium flex justify-center items-center space-x-2 transition-colors ${activeTab === 'letter' ? 'bg-love-50 text-love-600 border-b-2 border-love-500' : 'text-gray-500 hover:bg-gray-50'
+              }`}
           >
             <Heart size={18} />
-            <span>Love Letter</span>
+            <span>情书</span>
           </button>
           <button
             onClick={() => { setActiveTab('date'); setResult(''); }}
-            className={`flex-1 py-4 text-sm font-medium flex justify-center items-center space-x-2 transition-colors ${
-              activeTab === 'date' ? 'bg-love-50 text-love-600 border-b-2 border-love-500' : 'text-gray-500 hover:bg-gray-50'
-            }`}
+            className={`flex-1 py-4 text-sm font-medium flex justify-center items-center space-x-2 transition-colors ${activeTab === 'date' ? 'bg-love-50 text-love-600 border-b-2 border-love-500' : 'text-gray-500 hover:bg-gray-50'
+              }`}
           >
             <CalendarHeart size={18} />
-            <span>Date Ideas</span>
+            <span>约会灵感</span>
           </button>
         </div>
 
@@ -69,49 +67,49 @@ export const LoveAssistant: React.FC = () => {
           {activeTab === 'letter' && (
             <div className="space-y-4 animate-fade-in">
               <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Partner's Name</label>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">伴侣昵称</label>
                 <input
                   type="text"
                   className="w-full p-2 bg-gray-50 rounded-lg border border-gray-200 focus:border-love-400 focus:ring-love-400"
-                  placeholder="Name"
+                  placeholder="昵称"
                   value={partnerName}
                   onChange={(e) => setPartnerName(e.target.value)}
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Tone</label>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">语气</label>
                   <select
                     className="w-full p-2 bg-gray-50 rounded-lg border border-gray-200"
                     value={letterParams.tone}
                     onChange={(e) => setLetterParams({ ...letterParams, tone: e.target.value })}
                   >
-                    <option>Romantic</option>
-                    <option>Funny</option>
-                    <option>Apologetic</option>
-                    <option>Poetic</option>
-                    <option>Spicy</option>
+                    <option>浪漫</option>
+                    <option>幽默</option>
+                    <option>道歉</option>
+                    <option>诗意</option>
+                    <option>火辣</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Length</label>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">长度</label>
                   <select
                     className="w-full p-2 bg-gray-50 rounded-lg border border-gray-200"
                     value={letterParams.length}
                     onChange={(e) => setLetterParams({ ...letterParams, length: e.target.value })}
                   >
-                    <option>Short & Sweet</option>
-                    <option>Medium</option>
-                    <option>Long & Detailed</option>
+                    <option>短小精悍</option>
+                    <option>中等</option>
+                    <option>详细长文</option>
                   </select>
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Occasion / Context</label>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">场合 / 背景</label>
                 <input
                   type="text"
                   className="w-full p-2 bg-gray-50 rounded-lg border border-gray-200 focus:border-love-400 focus:ring-love-400"
-                  placeholder="e.g., Anniversary, Miss you, Just because"
+                  placeholder="例如：纪念日、想你了、无理由"
                   value={letterParams.context}
                   onChange={(e) => setLetterParams({ ...letterParams, context: e.target.value })}
                 />
@@ -123,43 +121,43 @@ export const LoveAssistant: React.FC = () => {
           {activeTab === 'date' && (
             <div className="space-y-4 animate-fade-in">
               <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Weather</label>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">天气</label>
                 <select
                   className="w-full p-2 bg-gray-50 rounded-lg border border-gray-200"
                   value={dateParams.weather}
                   onChange={(e) => setDateParams({ ...dateParams, weather: e.target.value })}
                 >
-                  <option>Sunny</option>
-                  <option>Rainy</option>
-                  <option>Cold / Snowy</option>
-                  <option>Hot / Humid</option>
+                  <option>晴朗</option>
+                  <option>下雨</option>
+                  <option>寒冷 / 下雪</option>
+                  <option>炎热 / 潮湿</option>
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Budget</label>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">预算</label>
                 <select
                   className="w-full p-2 bg-gray-50 rounded-lg border border-gray-200"
                   value={dateParams.budget}
                   onChange={(e) => setDateParams({ ...dateParams, budget: e.target.value })}
                 >
-                  <option>Free</option>
-                  <option>Cheap ($)</option>
-                  <option>Medium ($$)</option>
-                  <option>Luxury ($$$)</option>
+                  <option>免费</option>
+                  <option>便宜 ($)</option>
+                  <option>适中 ($$)</option>
+                  <option>豪华 ($$$)</option>
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Vibe</label>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">氛围</label>
                 <select
                   className="w-full p-2 bg-gray-50 rounded-lg border border-gray-200"
                   value={dateParams.vibe}
                   onChange={(e) => setDateParams({ ...dateParams, vibe: e.target.value })}
                 >
-                  <option>Relaxing</option>
-                  <option>Adventurous</option>
-                  <option>Foodie</option>
-                  <option>Cultural</option>
-                  <option>Active</option>
+                  <option>放松</option>
+                  <option>冒险</option>
+                  <option>美食</option>
+                  <option>文化</option>
+                  <option>活力</option>
                 </select>
               </div>
             </div>
@@ -173,12 +171,12 @@ export const LoveAssistant: React.FC = () => {
             {loading ? (
               <>
                 <Loader2 className="animate-spin" size={20} />
-                <span>Consulting Cupid...</span>
+                <span>正在咨询丘比特...</span>
               </>
             ) : (
               <>
                 <Sparkles size={20} />
-                <span>Generate</span>
+                <span>生成</span>
               </>
             )}
           </button>
@@ -189,7 +187,7 @@ export const LoveAssistant: React.FC = () => {
       {result && (
         <div className="mt-6 bg-white p-6 rounded-2xl shadow-md border border-love-100 relative animate-fade-in-up">
           <div className="absolute top-4 right-4">
-            <button 
+            <button
               onClick={handleCopy}
               className="text-gray-400 hover:text-love-500 transition-colors"
             >
@@ -197,7 +195,7 @@ export const LoveAssistant: React.FC = () => {
             </button>
           </div>
           <h3 className="text-sm font-bold text-love-800 mb-3 uppercase tracking-wide">
-            {activeTab === 'letter' ? 'Your Letter' : 'Date Ideas'}
+            {activeTab === 'letter' ? '你的情书' : '约会建议'}
           </h3>
           <div className="prose prose-sm prose-love text-gray-700 whitespace-pre-wrap font-handwriting text-lg leading-relaxed">
             {result}
