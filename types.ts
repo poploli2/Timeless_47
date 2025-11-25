@@ -28,7 +28,6 @@ export enum AppView {
   TIMELINE = 'TIMELINE',
   ADD_MEMORY = 'ADD_MEMORY',
   AI_TOOLS = 'AI_TOOLS',
-  GALLERY = 'GALLERY',
   PROFILE = 'PROFILE'
 }
 
