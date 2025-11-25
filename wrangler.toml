@@ -1,0 +1,27 @@
+name = "timeless-47"
+compatibility_date = "2025-11-01"
+pages_build_output_dir = "dist"
+
+# D1 数据库绑定
+[[d1_databases]]
+binding = "DB"
+database_name = "timeless_db"
+database_id = "your-database-id"  
+
+# R2 存储桶绑定
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "timeless-bucket"
+
+# 环境变量
+[vars]
+OPENAI_BASE_URL = "https://api.deepseek.com"
+OPENAI_MODEL = "deepseek-chat"
+AUTHENTICATION_REQUIRED = "false"  # 设置为 "true" 启用登录认证
+COUPLE_NAME = "Sam & Alex"
+START_DATE = "2025-01-01"
+
+# 环境变量（敏感信息，通过 wrangler secret put 设置）
+# wrangler secret put OPENAI_API_KEY --project-name=timeless
+# wrangler secret put JWT_SECRET --project-name=timeless
+# 建议使用随机字符串，例如：openssl rand -base64 32

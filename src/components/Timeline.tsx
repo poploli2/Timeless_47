@@ -1,9 +1,10 @@
 import React from 'react';
 import { Memory, Mood } from '../types';
-import { MapPin, Calendar, Tag } from 'lucide-react';
+import { MapPin, Calendar, Trash2 } from 'lucide-react';
 
 interface TimelineProps {
   memories: Memory[];
+  onDelete?: (id: string) => void;
 }
 
 const moodColors: Record<Mood, string> = {
@@ -15,9 +16,15 @@ const moodColors: Record<Mood, string> = {
   [Mood.GRATEFUL]: 'bg-blue-100 text-blue-700 border-blue-200',
 };
 
-export const Timeline: React.FC<TimelineProps> = ({ memories }) => {
+export const Timeline: React.FC<TimelineProps> = ({ memories, onDelete }) => {
   // Sort memories by date descending
   const sortedMemories = [...memories].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  const handleDelete = (id: string, title: string) => {
+    if (window.confirm(`确定要删除「${title}」吗？`)) {
+      onDelete?.(id);
+    }
+  };
 
   return (
     <div className="px-4 py-6 pb-24 max-w-2xl mx-auto">
@@ -32,16 +39,30 @@ export const Timeline: React.FC<TimelineProps> = ({ memories }) => {
             <div className="bg-white rounded-2xl p-5 shadow-sm border border-love-100 hover:shadow-md transition-shadow duration-300">
               {/* Header */}
               <div className="flex justify-between items-start mb-3">
-                <div>
+                <div className="flex-1">
                   <div className="flex items-center space-x-2 text-xs text-gray-500 mb-1">
                     <Calendar size={12} />
                     <span>{new Date(memory.date).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                   </div>
                   <h3 className="text-lg font-bold text-gray-800">{memory.title}</h3>
                 </div>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium border ${moodColors[memory.mood]}`}>
-                  {memory.mood}
-                </span>
+
+                <div className="flex items-center space-x-2">
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium border ${moodColors[memory.mood]}`}>
+                    {memory.mood}
+                  </span>
+
+                  {/* 删除按钮 */}
+                  {onDelete && (
+                    <button
+                      onClick={() => handleDelete(memory.id, memory.title)}
+                      className="p-1.5 hover:bg-red-50 rounded-lg text-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                      title="删除"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Image Placeholder */}

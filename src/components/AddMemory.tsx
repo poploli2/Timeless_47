@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Memory, Mood } from '../types';
-import { Wand2, Loader2, Save } from 'lucide-react';
+import { Wand2, Loader2, Save, Image as ImageIcon, X } from 'lucide-react';
 import { polishMemoryContent } from "../services/aiService";
+import { uploadImage, compressImage } from "../services/uploadService";
 
 interface AddMemoryProps {
   onAdd: (memory: Memory) => void;
@@ -15,6 +16,9 @@ export const AddMemory: React.FC<AddMemoryProps> = ({ onAdd, onCancel }) => {
   const [location, setLocation] = useState('');
   const [mood, setMood] = useState<Mood>(Mood.HAPPY);
   const [isPolishing, setIsPolishing] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handlePolish = async () => {
     if (!content.trim()) return;
@@ -24,9 +28,42 @@ export const AddMemory: React.FC<AddMemoryProps> = ({ onAdd, onCancel }) => {
     setIsPolishing(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      // 创建预览
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !content) return;
+
+    setIsUploading(true);
+
+    let imageUrl: string | undefined = undefined;
+
+    // 如果有选择图片，先上传
+    if (imageFile) {
+      // 压缩图片
+      const compressed = await compressImage(imageFile);
+      // 上传到 R2
+      const url = await uploadImage(compressed);
+      if (url) {
+        imageUrl = url;
+      }
+    }
 
     const newMemory: Memory = {
       id: Date.now().toString(),
@@ -35,9 +72,10 @@ export const AddMemory: React.FC<AddMemoryProps> = ({ onAdd, onCancel }) => {
       content,
       location,
       mood,
-      imageUrl: `https://picsum.photos/800/450?random=${Date.now()}` // Using placeholder as per requirements
+      imageUrl
     };
 
+    setIsUploading(false);
     onAdd(newMemory);
   };
 
@@ -92,6 +130,42 @@ export const AddMemory: React.FC<AddMemoryProps> = ({ onAdd, onCancel }) => {
           />
         </div>
 
+        {/* 图片上传 */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">照片（可选）</label>
+
+          {!imagePreview ? (
+            <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+              <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                <ImageIcon className="w-8 h-8 mb-2 text-gray-400" />
+                <p className="text-sm text-gray-500">点击上传照片</p>
+                <p className="text-xs text-gray-400">PNG, JPG (最大 10MB)</p>
+              </div>
+              <input
+                type="file"
+                className="hidden"
+                accept="image/*"
+                onChange={handleImageSelect}
+              />
+            </label>
+          ) : (
+            <div className="relative">
+              <img
+                src={imagePreview}
+                alt="Preview"
+                className="w-full h-48 object-cover rounded-xl"
+              />
+              <button
+                type="button"
+                onClick={handleRemoveImage}
+                className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+              >
+                <X size={18} />
+              </button>
+            </div>
+          )}
+        </div>
+
         <div>
           <div className="flex justify-between items-center mb-1">
             <label className="block text-sm font-medium text-gray-700">发生了什么？</label>
@@ -121,15 +195,26 @@ export const AddMemory: React.FC<AddMemoryProps> = ({ onAdd, onCancel }) => {
             type="button"
             onClick={onCancel}
             className="flex-1 py-3 px-4 border border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+            disabled={isUploading}
           >
             取消
           </button>
           <button
             type="submit"
-            className="flex-1 py-3 px-4 bg-love-500 text-white rounded-xl font-medium hover:bg-love-600 shadow-md shadow-love-200 transition-colors flex justify-center items-center space-x-2"
+            className="flex-1 py-3 px-4 bg-love-500 text-white rounded-xl font-medium hover:bg-love-600 shadow-md shadow-love-200 transition-colors flex justify-center items-center space-x-2 disabled:opacity-50"
+            disabled={isUploading}
           >
-            <Save size={18} />
-            <span>保存回忆</span>
+            {isUploading ? (
+              <>
+                <Loader2 size={18} className="animate-spin" />
+                <span>上传中...</span>
+              </>
+            ) : (
+              <>
+                <Save size={18} />
+                <span>保存回忆</span>
+              </>
+            )}
           </button>
         </div>
       </form>
