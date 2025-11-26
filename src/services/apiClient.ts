@@ -1,4 +1,5 @@
 // API 客户端工具 - 统一管理所有 API 请求
+import { emitAuthRequired } from './authService';
 
 const API_BASE = '/api';
 
@@ -13,7 +14,7 @@ export interface ApiResponse<T = any> {
  * 获取认证 token
  */
 function getToken(): string | null {
-    return localStorage.getItem('auth_token');
+    return localStorage.getItem('token');
 }
 
 /**
@@ -40,12 +41,28 @@ async function request<T>(
             headers,
         });
 
+        // 处理 401 未授权
+        if (response.status === 401) {
+            // 触发全局认证失败事件
+            emitAuthRequired();
+            return {
+                success: false,
+                error: '需要登录',
+                authRequired: true
+            };
+        }
+
         const data: ApiResponse<T> = await response.json();
 
-        // 如果需要认证但未登录，跳转登录页
-        if (data.authRequired && !token) {
-            // 可以在这里触发登录弹窗或跳转
-            console.warn('需要登录');
+        // 如果响应体中明确包含 authRequired
+        if (data.authRequired) {
+            // 触发全局认证失败事件
+            emitAuthRequired();
+            return {
+                success: false,
+                error: data.error || '需要登录',
+                authRequired: true
+            };
         }
 
         return data;

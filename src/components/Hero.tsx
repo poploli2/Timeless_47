@@ -53,46 +53,70 @@ export const Hero: React.FC<HeroProps> = ({ startDate, names, milestones }) => {
     }
   }, [milestones]);
 
-  return (
-    <div className="relative bg-gradient-to-b from-love-200 to-love-50 pt-12 pb-8 px-6 rounded-b-[3rem] shadow-lg overflow-hidden mb-6">
-      {/* Decorative Background Elements */}
-      <div className="absolute top-[-20px] right-[-20px] w-32 h-32 bg-white opacity-20 rounded-full blur-2xl"></div>
-      <div className="absolute top-[40%] left-[-20px] w-24 h-24 bg-love-400 opacity-10 rounded-full blur-xl"></div>
+  // 智能显示天数文案
+  const getDaysText = (days: number): string => {
+    if (days === 0) return '今天';
+    if (days === 1) return '明天';
+    if (days === 2) return '后天';
+    return `${days}天后`;
+  };
 
-      <div className="relative z-10 text-center">
-        <h1 className="font-handwriting text-4xl text-love-700 mb-2">{names}</h1>
-        <div className="flex items-center justify-center space-x-2 text-love-600 mb-6">
-          <span className="text-sm font-medium tracking-wider uppercase">相爱了</span>
+  return (
+    <div className="relative bg-gradient-to-br from-love-50 via-white to-rose-50 pt-20 pb-16 px-6 rounded-b-[3rem] shadow-love-lg overflow-hidden mb-10">
+      {/* 增强的装饰背景元素 - 更柔和有机 */}
+      <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-gradient-to-br from-love-200/40 to-rose-200/40 opacity-50 rounded-full blur-3xl animate-pulse-slow mix-blend-multiply"></div>
+      <div className="absolute top-[40%] left-[-10%] w-72 h-72 bg-gradient-to-tr from-warm-100/50 to-love-100/50 opacity-60 rounded-full blur-3xl animate-float mix-blend-multiply"></div>
+      <div className="absolute bottom-[-10%] right-[20%] w-64 h-64 bg-rose-100/40 opacity-40 rounded-full blur-3xl"></div>
+
+      <div className="relative z-10 text-center max-w-lg mx-auto">
+        {/* 标题 - 手写字体 */}
+        <h1 className="font-handwriting text-5xl md:text-7xl text-love-600 mb-6 animate-fade-in-down drop-shadow-sm tracking-wide">
+          {names}
+        </h1>
+
+        <div className="flex items-center justify-center space-x-3 text-love-400 mb-10 animate-fade-in">
+          <div className="h-px w-12 bg-gradient-to-r from-transparent to-love-300"></div>
+          <Heart size={14} className="fill-love-400 animate-pulse" />
+          <span className="text-sm font-medium tracking-[0.2em] uppercase">相爱时光</span>
+          <Heart size={14} className="fill-love-400 animate-pulse" />
+          <div className="h-px w-12 bg-gradient-to-l from-transparent to-love-300"></div>
         </div>
 
-        <div className="bg-white/60 backdrop-blur-sm inline-block px-8 py-4 rounded-2xl shadow-sm border border-white/50 mb-6">
-          <div className="flex items-baseline justify-center space-x-2">
-            <span className="text-5xl font-bold text-love-600">{daysTogether}</span>
-            <span className="text-lg text-love-800 font-medium">天</span>
+        {/* 天数显示 - 极简高级感 */}
+        <div className="relative inline-block mb-12 animate-bounce-in group">
+          <div className="absolute inset-0 bg-gradient-to-r from-love-200 to-rose-200 rounded-full blur-2xl opacity-20 group-hover:opacity-30 transition-opacity duration-500"></div>
+          <div className="relative">
+            <span className="text-8xl md:text-9xl font-bold bg-gradient-to-b from-love-500 to-rose-600 bg-clip-text text-transparent drop-shadow-sm tracking-tighter leading-none">
+              {daysTogether}
+            </span>
+            <span className="absolute -right-6 bottom-4 text-2xl text-love-400 font-handwriting -rotate-12">days</span>
           </div>
         </div>
 
+        {/* 下一个纪念日 - 胶囊样式 */}
         {nextMilestone && (
-          <div className="mx-auto max-w-xs bg-white/80 backdrop-blur-md rounded-xl p-3 flex items-center justify-between shadow-sm border border-love-100 animate-fade-in-up">
+          <div className="mx-auto max-w-xs glass rounded-full p-2 pr-6 flex items-center justify-between shadow-lg shadow-love-100/50 animate-fade-in-up hover:scale-105 transition-transform duration-300 cursor-default">
             <div className="flex items-center space-x-3">
-              <div className="bg-love-100 p-2 rounded-full text-love-500">
+              <div className="bg-gradient-to-br from-love-500 to-rose-500 w-10 h-10 rounded-full flex items-center justify-center text-white shadow-md">
                 <CalendarClock size={18} />
               </div>
-              <div className="text-left">
-                <p className="text-xs text-gray-500 uppercase font-semibold">下一个纪念日</p>
-                <p className="text-sm font-bold text-gray-800">{nextMilestone.title}</p>
+              <div className="text-left flex flex-col">
+                <span className="text-[10px] text-love-400 font-bold uppercase tracking-wider">Next Milestone</span>
+                <span className="text-sm font-bold text-slate-700">{nextMilestone.title}</span>
               </div>
             </div>
             <div className="text-right">
-              <span className="block text-lg font-bold text-love-600">{nextMilestone.days}</span>
-              <span className="text-[10px] text-love-400 font-medium uppercase">天后</span>
+              <span className="text-lg font-bold text-love-600">
+                {getDaysText(nextMilestone.days)}
+              </span>
             </div>
           </div>
         )}
 
+        {/* 无纪念日时显示爱心 */}
         {!nextMilestone && (
-          <div className="mt-4 flex justify-center">
-            <Heart className="text-love-500 animate-pulse fill-love-500" size={24} />
+          <div className="mt-8 flex justify-center opacity-50">
+            <Heart className="text-love-300 fill-love-100 animate-float" size={24} />
           </div>
         )}
       </div>

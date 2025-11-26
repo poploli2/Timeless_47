@@ -1,60 +1,57 @@
-// 认证服务
-import { post, get } from './apiClient';
+import { post } from './apiClient';
 
-export interface User {
-    id: number;
-    username: string;
-    real_name: string;
-    birthday?: string;
-    description?: string;
-    avatar_url?: string;
-}
-
-export interface LoginResponse {
-    user: User;
+interface LoginResponse {
+    user: {
+        id: number;
+        username: string;
+        role: string;
+    };
     token: string;
 }
 
+// 全局认证事件系统
+type AuthRequiredListener = () => void;
+const authRequiredListeners: AuthRequiredListener[] = [];
+
 /**
- * 登录
+ * 注册认证失败监听器
  */
+export function onAuthRequired(callback: AuthRequiredListener) {
+    authRequiredListeners.push(callback);
+    return () => {
+        const index = authRequiredListeners.indexOf(callback);
+        if (index > -1) authRequiredListeners.splice(index, 1);
+    };
+}
+
+/**
+ * 触发认证失败事件（由 apiClient 调用）
+ */
+export function emitAuthRequired() {
+    authRequiredListeners.forEach(listener => listener());
+}
+
 export async function login(username: string, password: string) {
     const result = await post<LoginResponse>('/auth', { username, password });
 
     if (result.success && result.data) {
-        localStorage.setItem('auth_token', result.data.token);
+        localStorage.setItem('token', result.data.token);
         localStorage.setItem('user', JSON.stringify(result.data.user));
     }
 
     return result;
 }
 
-/**
- * 验证 token
- */
-export async function verifyToken() {
-    return await get<{ username: string; userId: number; valid: boolean }>('/auth');
-}
-
-/**
- * 登出
- */
 export function logout() {
-    localStorage.removeItem('auth_token');
+    localStorage.removeItem('token');
     localStorage.removeItem('user');
+    window.location.reload();
 }
 
-/**
- * 获取当前用户
- */
-export function getCurrentUser(): User | null {
-    const userStr = localStorage.getItem('user');
-    return userStr ? JSON.parse(userStr) : null;
+export function getToken(): string | null {
+    return localStorage.getItem('token');
 }
 
-/**
- * 是否已登录
- */
 export function isAuthenticated(): boolean {
-    return !!localStorage.getItem('auth_token');
+    return !!getToken();
 }

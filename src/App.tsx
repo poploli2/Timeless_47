@@ -5,22 +5,38 @@ import { Timeline } from './components/Timeline';
 import { AddMemory } from './components/AddMemory';
 import { LoveAssistant } from './components/LoveAssistant';
 import { MilestoneManager } from './components/MilestoneManager';
+import { Login } from './components/Login';
 import { AppView, Memory, Milestone } from './types';
 import { UserCircle2 } from 'lucide-react';
 import { getMemories, getMilestones, createMemory, updateMemory, deleteMemory } from './services/dataService';
+import { isAuthenticated, onAuthRequired } from './services/authService';
 
 const App: React.FC = () => {
   const [view, setView] = useState<AppView>(AppView.TIMELINE);
   const [memories, setMemories] = useState<Memory[]>([]);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // Settings - 从环境变量读取
   const startDate = import.meta.env.VITE_START_DATE;
   const coupleName = import.meta.env.VITE_COUPLE_NAME;
 
+  // 注册全局认证拦截器
+  useEffect(() => {
+    const unsubscribe = onAuthRequired(() => {
+      setIsLoggedIn(false);
+      setView(AppView.LOGIN);
+    });
+    return unsubscribe;
+  }, []);
+
   // 加载数据
   useEffect(() => {
+    // 初始检查是否已登录（仅检查本地 token）
+    if (isAuthenticated()) {
+      setIsLoggedIn(true);
+    }
     loadData();
   }, []);
 
@@ -39,11 +55,22 @@ const App: React.FC = () => {
       if (milestonesResult.success && milestonesResult.data) {
         setMilestones(milestonesResult.data as Milestone[]);
       }
+
+      // 如果数据加载成功，确认为已登录状态
+      if (memoriesResult.success) {
+        setIsLoggedIn(true);
+      }
+
     } catch (error) {
       console.error('加载数据失败:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleLoginSuccess = () => {
+    setIsLoggedIn(true);
+    loadData();
   };
 
   const handleAddMemory = async (memory: Memory) => {
@@ -79,10 +106,15 @@ const App: React.FC = () => {
       );
     }
 
+    // 如果当前视图是登录页，直接显示
+    if (view === AppView.LOGIN) {
+      return <Login onLoginSuccess={handleLoginSuccess} />;
+    }
+
     switch (view) {
       case AppView.TIMELINE:
         return (
-          <div className="animate-fade-in">
+          <div key="timeline" className="animate-fade-in space-y-8">
             <Hero startDate={startDate} names={coupleName} milestones={milestones} />
             <Timeline
               memories={memories}
@@ -91,43 +123,73 @@ const App: React.FC = () => {
           </div>
         );
       case AppView.ADD_MEMORY:
+        // 如果未登录，进入添加页面时直接跳转登录
+        if (!isLoggedIn) {
+          setView(AppView.LOGIN);
+          return null;
+        }
         return (
-          <AddMemory
-            onAdd={handleAddMemory}
-            onCancel={() => setView(AppView.TIMELINE)}
-          />
+          <div key="add-memory" className="pt-6">
+            <AddMemory
+              onAdd={handleAddMemory}
+              onCancel={() => setView(AppView.TIMELINE)}
+            />
+          </div>
         );
       case AppView.AI_TOOLS:
-        return <LoveAssistant />;
+        // 如果未登录，进入 AI 工具时直接跳转登录
+        if (!isLoggedIn) {
+          setView(AppView.LOGIN);
+          return null;
+        }
+        return (
+          <div key="ai-tools" className="pt-6">
+            <LoveAssistant />
+          </div>
+        );
 
       case AppView.PROFILE:
         return (
-          <div className="flex flex-col items-center pt-12 px-4 animate-fade-in pb-24">
-            <div className="w-24 h-24 bg-love-100 rounded-full flex items-center justify-center mb-4 text-love-500 shadow-inner">
-              <UserCircle2 size={64} />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-800">{coupleName}</h2>
-            <p className="text-gray-500 mt-1 text-sm">从 {startDate} 开始在一起</p>
-
-            <div className="mt-8 bg-white p-6 rounded-2xl shadow-sm border border-love-100 max-w-xs w-full">
-              <h3 className="font-medium text-love-700 mb-2 border-b border-love-50 pb-2">应用统计</h3>
-              <div className="flex justify-between py-1">
-                <span className="text-gray-600 text-sm">回忆</span>
-                <span className="font-bold text-gray-800 text-sm">{memories.length}</span>
-              </div>
-              <div className="flex justify-between py-1">
-                <span className="text-gray-600 text-sm">里程碑</span>
-                <span className="font-bold text-gray-800 text-sm">{milestones.length}</span>
+          <div key="profile" className="flex flex-col items-center pt-16 px-6 animate-fade-in pb-32 max-w-lg mx-auto">
+            {/* 头像区域 */}
+            <div className="relative mb-6 group">
+              <div className="absolute inset-0 bg-gradient-to-br from-love-300 to-rose-300 rounded-full blur-xl opacity-50 group-hover:opacity-70 transition-opacity duration-500"></div>
+              <div className="relative w-32 h-32 bg-white rounded-full flex items-center justify-center text-love-500 shadow-xl border-4 border-white">
+                <UserCircle2 size={80} strokeWidth={1.5} />
               </div>
             </div>
 
-            <MilestoneManager
-              milestones={milestones}
-              onUpdate={(updated) => {
-                setMilestones(updated);
-                loadData(); // 重新加载以同步
-              }}
-            />
+            <h2 className="text-3xl font-bold text-slate-800 mb-2">{coupleName}</h2>
+            <div className="flex items-center space-x-2 text-slate-500 bg-white/50 px-4 py-1.5 rounded-full backdrop-blur-sm border border-white/50 shadow-sm">
+              <span className="text-sm font-medium">从 {startDate} 开始在一起</span>
+            </div>
+
+            {/* 统计卡片 */}
+            <div className="mt-10 w-full grid grid-cols-2 gap-4">
+              <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center justify-center hover:shadow-md transition-shadow duration-300">
+                <span className="text-4xl font-bold bg-gradient-to-br from-love-500 to-rose-500 bg-clip-text text-transparent mb-1">
+                  {memories.length}
+                </span>
+                <span className="text-slate-400 text-xs font-medium uppercase tracking-wider">美好回忆</span>
+              </div>
+              <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center justify-center hover:shadow-md transition-shadow duration-300">
+                <span className="text-4xl font-bold bg-gradient-to-br from-love-500 to-rose-500 bg-clip-text text-transparent mb-1">
+                  {milestones.length}
+                </span>
+                <span className="text-slate-400 text-xs font-medium uppercase tracking-wider">里程碑</span>
+              </div>
+            </div>
+
+            <div className="w-full mt-8">
+              <MilestoneManager
+                milestones={milestones}
+                onUpdate={(updated) => {
+                  setMilestones(updated);
+                  loadData(); // 重新加载以同步
+                }}
+                onAuthRequired={() => setView(AppView.LOGIN)}
+              />
+            </div>
           </div>
         );
       default:
@@ -140,7 +202,14 @@ const App: React.FC = () => {
       <main className="pb-20">
         {renderContent()}
       </main>
-      <Navbar currentView={view} onNavigate={setView} />
+      {view !== AppView.LOGIN && <Navbar currentView={view} onNavigate={(target) => {
+        // 导航拦截：如果目标是需要认证的页面且未登录，跳转登录
+        if ((target === AppView.ADD_MEMORY || target === AppView.AI_TOOLS) && !isLoggedIn) {
+          setView(AppView.LOGIN);
+        } else {
+          setView(target);
+        }
+      }} />}
     </div>
   );
 };

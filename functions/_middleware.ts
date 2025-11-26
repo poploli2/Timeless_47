@@ -21,11 +21,29 @@ export const onRequest: PagesFunction = async (context) => {
     }
 
     // 检查是否需要认证
-    const authRequired = (env as any).AUTHENTICATION_REQUIRED === 'true';
+    const strictAuthMode = (env as any).AUTHENTICATION_REQUIRED === 'true';
     const url = new URL(request.url);
 
-    // 如果启用认证且不是认证接口本身，则验证 JWT
-    if (authRequired && !url.pathname.startsWith('/api/auth')) {
+    // 双模式认证策略：
+    // 【严格模式】当 AUTHENTICATION_REQUIRED = true 时：
+    //   - 所有 API 端点都需要认证（包括 GET、文件访问、AI）
+    //   - 仅排除 /api/auth 登录接口
+    //
+    // 【宽松模式】当 AUTHENTICATION_REQUIRED = false 时：
+    //   - GET 请求开放（查询开放）
+    //   - 关键操作（POST/PUT/DELETE - 增删改、AI）需要认证
+    //   - /api/auth 始终开放
+
+    const isApiRequest = url.pathname.startsWith('/api/');
+    const isAuthEndpoint = url.pathname.startsWith('/api/auth');
+    const isGetRequest = request.method === 'GET';
+
+    // 判断是否需要验证 token
+    const needsAuth = isApiRequest && !isAuthEndpoint && (
+        strictAuthMode || !isGetRequest  // 严格模式：所有请求；宽松模式：仅非 GET 请求
+    );
+
+    if (needsAuth) {
         const authHeader = request.headers.get('Authorization');
 
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
