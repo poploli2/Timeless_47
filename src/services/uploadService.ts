@@ -1,5 +1,6 @@
 // 图片上传服务
 import { ApiResponse } from './apiClient';
+import { getToken } from './authService';
 
 /**
  * 上传图片到 R2
@@ -11,12 +12,17 @@ export async function uploadImage(file: File): Promise<string | null> {
         const formData = new FormData();
         formData.append('file', file);
 
+        const token = getToken();
+        const headers: HeadersInit = {};
+
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
         const response = await fetch('/api/upload', {
             method: 'POST',
             body: formData,
-            headers: {
-                // 不设置 Content-Type，让浏览器自动设置包含 boundary
-            },
+            headers,
         });
 
         const result: ApiResponse<{ url: string }> = await response.json();
