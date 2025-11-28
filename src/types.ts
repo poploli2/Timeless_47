@@ -28,7 +28,8 @@ export enum AppView {
   TIMELINE = 'TIMELINE',
   ADD_MEMORY = 'ADD_MEMORY',
   AI_TOOLS = 'AI_TOOLS',
-  PROFILE = 'PROFILE'
+  PROFILE = 'PROFILE',
+  LOGIN = 'LOGIN'
 }
 
 export interface DateIdeaParams {
