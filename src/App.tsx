@@ -70,6 +70,7 @@ const App: React.FC = () => {
 
   const handleLoginSuccess = () => {
     setIsLoggedIn(true);
+    setView(AppView.TIMELINE);
     loadData();
   };
 
